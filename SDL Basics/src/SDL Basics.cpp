@@ -8,17 +8,32 @@
 
 #include <iostream>
 #include <SDL.h>
+#include "Screen.h"
 using namespace std;
+using namespace explosions;
 
 int main() {
-	if(SDL_Init(SDL_INIT_VIDEO) < 0){
-		cout << "SDL INIT FAILED" << endl;
-		return 1;
+
+	Screen screen;
+
+	if(screen.init() == false){
+		cout << "Error in initializing.." << endl;
 	}
 
-	cout << "SDL INIT SUCCEEEDEDED" << endl;
+	bool quit = false;
+	SDL_Event event;
 
-	SDL_Quit();
+	while(true){
+		//update position
+		//draw particles
+		//check for events
+		screen.update();
+		if(screen.processEvents()==false){
+			break;
+		}
+	}
+
+	screen.close();
 
 	return 0;
 }
