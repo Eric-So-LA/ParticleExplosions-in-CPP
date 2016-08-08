@@ -56,15 +56,12 @@ bool Screen::init() {
 
 	memset(m_buffer, 0, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
 
-	m_buffer[300000] = 0xFFFFFFFF;
-
-	for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {
-		m_buffer[i] = 0x66225500;
-	}
-
 	return true;
 }
-void setPixel(int x, int y, Uint8 red, Uint8 green, Uint8 blue) {
+void Screen::setPixel(int x, int y, Uint8 red, Uint8 green, Uint8 blue) {
+	if(x < 0 || x >= SCREEN_WIDTH || y >= SCREEN_HEIGHT || y < 0){
+		return;
+	}
 	Uint32 color = 0;
 
 	color += red;
@@ -72,6 +69,7 @@ void setPixel(int x, int y, Uint8 red, Uint8 green, Uint8 blue) {
 	color += green;
 	color <<= 8;
 	color += blue;
+	color <<=8;
 	color += 0xFF;
 
 	m_buffer[(y * SCREEN_WIDTH) + x] = color;
@@ -91,7 +89,7 @@ void Screen::update() {
 
 }
 bool Screen::processEvents() {
-	SDL_EVENT event;
+	SDL_Event event;
 
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT) {
@@ -106,5 +104,8 @@ void Screen::close() {
 	SDL_DestroyTexture(m_texture);
 	SDL_DestroyWindow(m_window);
 	SDL_Quit();
+}
+void Screen::clear(){
+memset(m_buffer, 0, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
 }
 }

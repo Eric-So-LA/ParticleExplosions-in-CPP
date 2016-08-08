@@ -8,6 +8,8 @@
 #ifndef SCREEN_H_
 #define SCREEN_H_
 
+#include <iostream>
+#include <iomanip>
 #include <SDL.h>
 
 namespace explosions {
@@ -26,6 +28,7 @@ public:
 	bool processEvents();
 	void setPixel(int x, int y, Uint8 red, Uint8 green, Uint8 blue);
 	void close();
+	void clear();
 	void update();
 };
 }
