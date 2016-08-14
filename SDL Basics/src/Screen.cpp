@@ -9,7 +9,7 @@
 
 namespace explosions {
 Screen::Screen() :
-		m_window(NULL), m_renderer(NULL), m_texture(NULL), m_buffer(NULL) {
+		m_window(NULL), m_renderer(NULL), m_texture(NULL), m_buffer(NULL), m_buffer2(NULL) {
 
 }
 bool Screen::init() {
@@ -53,8 +53,9 @@ bool Screen::init() {
 
 	//for each pixel we need 32 bits, or 4 bytes
 	m_buffer = new Uint32[SCREEN_WIDTH * SCREEN_HEIGHT];
-
+	m_buffer2 = new Uint32[SCREEN_WIDTH * SCREEN_HEIGHT];
 	memset(m_buffer, 0, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
+	memset(m_buffer2, 0, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
 
 	return true;
 }
@@ -88,6 +89,44 @@ void Screen::update() {
 	SDL_RenderPresent(m_renderer);
 
 }
+void Screen::boxBlur(){
+	Uint32 *temp = m_buffer;
+	m_buffer = m_buffer2;
+	m_buffer2 = temp;
+
+	for(int y = 0; y < SCREEN_HEIGHT; y++){
+		for( int x = 0; x < SCREEN_WIDTH; x++){
+
+			int redTotal = 0;
+			int greenTotal = 0;
+			int blueTotal = 0;
+			for(int row = -1; row <= 1; row++){
+				for(int col= -1; col <=1; col++ ){
+					int currentX = x + col;
+					int currentY = y + row;
+					if(currentX >= 0 && currentX < SCREEN_WIDTH && currentY >= 0 && currentY < SCREEN_HEIGHT){
+						Uint32 color = m_buffer2[currentY * SCREEN_WIDTH + currentX];
+
+						Uint8 red = color >> 24;
+						Uint8 green = color >> 16;
+						Uint8 blue = color >> 8;
+
+						redTotal += red;
+						greenTotal += green;
+						blueTotal += blue;
+
+					}
+				}
+			}
+
+			Uint8 red = redTotal/9;
+			Uint8 green = greenTotal/9;
+			Uint8 blue = blueTotal/9;
+
+			setPixel(x,y, red, green, blue);
+		}
+	}
+}
 bool Screen::processEvents() {
 	SDL_Event event;
 
@@ -100,12 +139,10 @@ bool Screen::processEvents() {
 }
 void Screen::close() {
 	delete[] m_buffer;
+	delete[] m_buffer2;
 	SDL_DestroyRenderer(m_renderer);
 	SDL_DestroyTexture(m_texture);
 	SDL_DestroyWindow(m_window);
 	SDL_Quit();
-}
-void Screen::clear(){
-memset(m_buffer, 0, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
 }
 }
